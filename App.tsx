@@ -1,0 +1,266 @@
+import React, { useState, useMemo } from 'react';
+import { Search, LayoutGrid, Zap, Sparkles, User, LogOut } from 'lucide-react';
+import { TEMPLATE_DATA, CATEGORIES } from './constants';
+import { Category, TemplateItem } from './types';
+import { TemplateModal } from './components/TemplateModal';
+import { LoginPage } from './components/LoginPage';
+
+type View = 'home' | 'login';
+
+const App: React.FC = () => {
+  const [currentView, setCurrentView] = useState<View>('home');
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<Category>(Category.ALL);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedItem, setSelectedItem] = useState<TemplateItem | null>(null);
+
+  // Filter Logic
+  const filteredItems = useMemo(() => {
+    return TEMPLATE_DATA.filter(item => {
+      const matchesCategory = selectedCategory === Category.ALL || item.category === selectedCategory;
+      const matchesSearch = item.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                            item.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
+      return matchesCategory && matchesSearch;
+    });
+  }, [selectedCategory, searchQuery]);
+
+  const handleLogin = () => {
+    setIsLoggedIn(true);
+    setCurrentView('home');
+  };
+
+  const handleLogout = () => {
+    setIsLoggedIn(false);
+  };
+
+  if (currentView === 'login') {
+    return (
+      <>
+        {/* Background Blobs for Login too */}
+        <div className="fixed inset-0 z-[-1] overflow-hidden pointer-events-none bg-gradient-to-br from-indigo-100 via-purple-100 to-pink-100">
+           <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-purple-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob"></div>
+           <div className="absolute bottom-[-20%] right-[-10%] w-[500px] h-[500px] bg-yellow-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000"></div>
+        </div>
+        <LoginPage onLogin={handleLogin} onBack={() => setCurrentView('home')} />
+      </>
+    );
+  }
+
+  return (
+    <div className="min-h-screen flex flex-col relative overflow-hidden">
+      
+      {/* Background Decorative Blobs */}
+      <div className="fixed inset-0 z-[-1] overflow-hidden pointer-events-none">
+        <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-purple-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob"></div>
+        <div className="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] bg-yellow-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000"></div>
+        <div className="absolute bottom-[-20%] left-[20%] w-[500px] h-[500px] bg-pink-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-4000"></div>
+      </div>
+
+      {/* Navigation Bar */}
+      <nav className="sticky top-0 z-30 bg-white/60 backdrop-blur-xl border-b border-white/50 shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <div className="flex items-center gap-2 cursor-pointer" onClick={() => setCurrentView('home')}>
+              <div className="w-8 h-8 bg-gradient-to-tr from-violet-600 to-indigo-600 rounded-lg flex items-center justify-center text-white shadow-lg shadow-indigo-500/30">
+                <LayoutGrid size={20} />
+              </div>
+              <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-violet-700 to-fuchsia-600 tracking-tight">ProCraft</span>
+            </div>
+            
+            <div className="hidden md:flex items-center gap-6">
+              <a href="#" className="text-sm font-semibold text-slate-600 hover:text-violet-600 transition-colors">Templates</a>
+              <a href="#" className="text-sm font-semibold text-slate-600 hover:text-violet-600 transition-colors">Pricing</a>
+              
+              {isLoggedIn ? (
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-r from-fuchsia-500 to-violet-500 flex items-center justify-center text-white font-bold text-xs shadow-md">
+                      JD
+                    </div>
+                    <span className="text-sm font-bold text-slate-700">John Doe</span>
+                  </div>
+                  <button 
+                    onClick={handleLogout}
+                    className="p-2 text-slate-400 hover:text-red-500 transition-colors"
+                    title="Sign Out"
+                  >
+                    <LogOut size={18} />
+                  </button>
+                </div>
+              ) : (
+                <button 
+                  onClick={() => setCurrentView('login')}
+                  className="bg-slate-900 text-white px-5 py-2 rounded-full text-sm font-bold hover:bg-slate-800 transition-all hover:scale-105 shadow-lg"
+                >
+                  Sign In
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      {/* Hero Section */}
+      <header className="relative">
+        <div className="max-w-7xl mx-auto px-4 py-20 sm:px-6 lg:px-8 text-center relative z-10">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/50 backdrop-blur-md border border-white/60 shadow-sm mb-6">
+            <Sparkles className="w-4 h-4 text-amber-500 fill-amber-500" />
+            <span className="text-sm font-semibold text-slate-700">New AI Image Prompts Available</span>
+          </div>
+
+          <h1 className="text-5xl sm:text-7xl font-extrabold text-slate-900 mb-8 tracking-tight leading-tight">
+            Craft your future with <br/>
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-violet-600 via-fuchsia-500 to-orange-500 animate-gradient-x">
+              vibrant designs.
+            </span>
+          </h1>
+          <p className="text-xl text-slate-600 max-w-2xl mx-auto mb-12 font-medium">
+            Premium templates for resumes, business cards, and social media. 
+            Powered by colorful creativity and smart AI assistance.
+          </p>
+          
+          {/* Search Bar */}
+          <div className="max-w-xl mx-auto relative group">
+            <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
+              <Search className="h-5 w-5 text-indigo-400 group-focus-within:text-fuchsia-500 transition-colors" />
+            </div>
+            <input
+              type="text"
+              className="block w-full pl-12 pr-4 py-4 bg-white/80 backdrop-blur-xl border-2 border-white/50 rounded-2xl text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-violet-200 focus:border-violet-300 transition-all shadow-xl shadow-indigo-100/50 hover:shadow-2xl hover:shadow-indigo-100/60"
+              placeholder="Search templates (e.g. 'Modern Resume', 'Instagram')"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 w-full">
+        
+        {/* Category Tabs */}
+        <div className="flex overflow-x-auto gap-3 pb-8 no-scrollbar mb-4 justify-start md:justify-center">
+          {CATEGORIES.map(category => (
+            <button
+              key={category}
+              onClick={() => setSelectedCategory(category)}
+              className={`
+                whitespace-nowrap px-6 py-2.5 rounded-full text-sm font-bold transition-all duration-300
+                ${selectedCategory === category 
+                  ? 'bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white shadow-lg shadow-fuchsia-500/30 scale-105' 
+                  : 'bg-white/60 text-slate-600 hover:bg-white hover:text-violet-600 shadow-sm border border-transparent hover:border-violet-100'}
+              `}
+            >
+              {category}
+            </button>
+          ))}
+        </div>
+
+        {/* Results Info */}
+        <div className="flex justify-between items-center mb-6 px-2">
+          <h2 className="text-2xl font-bold text-slate-800">
+            {selectedCategory === Category.ALL ? 'All Templates' : selectedCategory}
+          </h2>
+          <span className="text-sm font-medium px-3 py-1 bg-white/50 rounded-full text-slate-500 border border-white/50 shadow-sm">
+            {filteredItems.length} results
+          </span>
+        </div>
+
+        {/* Grid */}
+        {filteredItems.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+            {filteredItems.map(item => (
+              <div 
+                key={item.id} 
+                className="group relative bg-white/40 backdrop-blur-md rounded-2xl border border-white/60 overflow-hidden hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.1)] hover:border-white transition-all duration-500 cursor-pointer flex flex-col h-full hover:-translate-y-1"
+                onClick={() => setSelectedItem(item)}
+              >
+                {/* Image Container */}
+                <div className="relative aspect-[4/5] overflow-hidden m-2 rounded-xl">
+                  <img 
+                    src={item.imageUrl} 
+                    alt={item.title} 
+                    className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700"
+                  />
+                  {/* Hover Overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-violet-900/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4">
+                    <span className="bg-white/20 backdrop-blur-md border border-white/30 text-white text-center py-2 rounded-lg text-sm font-bold transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
+                      View Details
+                    </span>
+                  </div>
+                  {item.category !== Category.PROFESSIONAL_PHOTO && (
+                    <div className="absolute top-2 right-2 bg-white/90 backdrop-blur text-amber-500 p-1.5 rounded-full shadow-lg">
+                        <Zap size={14} fill="currentColor" />
+                    </div>
+                  )}
+                  {item.category === Category.PROFESSIONAL_PHOTO && (
+                     <div className="absolute top-2 right-2 bg-white/90 backdrop-blur text-violet-500 p-1.5 rounded-full shadow-lg">
+                        <Sparkles size={14} fill="currentColor" />
+                     </div>
+                  )}
+                </div>
+                
+                <div className="p-4 pt-2 flex flex-col flex-grow">
+                  <div className="flex justify-between items-start mb-2">
+                    <span className="text-[10px] uppercase font-bold tracking-wider text-fuchsia-600 bg-fuchsia-50 px-2 py-1 rounded-md border border-fuchsia-100">
+                      {item.category}
+                    </span>
+                  </div>
+                  <h3 className="font-bold text-slate-800 mb-1 leading-snug group-hover:text-violet-600 transition-colors">
+                    {item.title}
+                  </h3>
+                  <p className="text-xs font-medium text-slate-500 line-clamp-2 mb-4 flex-grow">
+                    {item.description}
+                  </p>
+                  <div className="flex flex-wrap gap-1.5 mt-auto">
+                    {item.tags.slice(0, 3).map(tag => (
+                      <span key={tag} className="text-[10px] font-semibold text-slate-500 bg-white/50 px-2 py-1 rounded-md border border-white/60">
+                        #{tag}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-20 bg-white/40 backdrop-blur-sm rounded-3xl border-2 border-dashed border-white/60">
+            <div className="w-16 h-16 bg-gradient-to-tr from-indigo-100 to-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Search className="w-8 h-8 text-indigo-400" />
+            </div>
+            <h3 className="text-xl font-bold text-slate-800">No templates found</h3>
+            <p className="text-slate-500 mb-6">Try adjusting your search or category filter.</p>
+            <button 
+                onClick={() => {setSearchQuery(''); setSelectedCategory(Category.ALL)}}
+                className="px-6 py-2 bg-white text-violet-600 font-bold rounded-full shadow-sm hover:shadow-md transition-all border border-violet-100"
+            >
+                Clear all filters
+            </button>
+          </div>
+        )}
+      </main>
+
+      {/* Footer */}
+      <footer className="bg-white/40 backdrop-blur-md border-t border-white/40 mt-auto">
+        <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-4">
+          <p className="text-slate-600 text-sm font-medium">© 2024 ProCraft. All rights reserved.</p>
+          <div className="flex gap-6">
+            <a href="#" className="text-slate-500 hover:text-violet-600 transition-colors text-sm font-semibold">Privacy</a>
+            <a href="#" className="text-slate-500 hover:text-violet-600 transition-colors text-sm font-semibold">Terms</a>
+            <a href="#" className="text-slate-500 hover:text-violet-600 transition-colors text-sm font-semibold">Support</a>
+          </div>
+        </div>
+      </footer>
+
+      {/* Modal */}
+      {selectedItem && (
+        <TemplateModal 
+          item={selectedItem} 
+          onClose={() => setSelectedItem(null)} 
+        />
+      )}
+    </div>
+  );
+};
+
+export default App;
