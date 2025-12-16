@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>ProCraft | Professional Templates</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script>
       tailwind.config = {
         theme: {
@@ -21,6 +22,8 @@
             },
             fontFamily: {
               sans: ['Inter', 'sans-serif'],
+              serif: ['Georgia', 'serif'],
+              mono: ['Courier New', 'monospace'],
             },
             animation: {
               'gradient-x': 'gradient-x 15s ease infinite',
@@ -43,6 +46,9 @@
                 '66%': { transform: 'translate(-20px, 20px) scale(0.9)' },
                 '100%': { transform: 'translate(0px, 0px) scale(1)' },
               }
+            },
+            screens: {
+              'print': {'raw': 'print'},
             }
           }
         }
@@ -71,6 +77,27 @@
         backdrop-filter: blur(12px);
         -webkit-backdrop-filter: blur(12px);
         border: 1px solid rgba(255, 255, 255, 0.5);
+      }
+
+      @media print {
+        body * {
+          visibility: hidden;
+        }
+        #printable-area, #printable-area * {
+          visibility: visible;
+        }
+        #printable-area {
+          position: absolute;
+          left: 0;
+          top: 0;
+          width: 100%;
+          margin: 0;
+          padding: 0;
+          background: white;
+        }
+        @page {
+          margin: 0;
+        }
       }
     </style>
   <script type="importmap">

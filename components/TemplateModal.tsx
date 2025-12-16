@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { X, Wand2, Download, Copy, Check, Image as ImageIcon } from 'lucide-react';
+import { X, Wand2, Download, Copy, Check, Image as ImageIcon, Loader2, Edit3, Phone, Mail, Globe, MapPin, Linkedin } from 'lucide-react';
 import { TemplateItem, Category } from '../types';
 import { generateTemplateContent } from '../services/geminiService';
+import { TemplateEditor } from './TemplateEditor';
 
 interface TemplateModalProps {
   item: TemplateItem;
@@ -9,19 +10,76 @@ interface TemplateModalProps {
 }
 
 export const TemplateModal: React.FC<TemplateModalProps> = ({ item, onClose }) => {
+  const [isEditing, setIsEditing] = useState(false);
   const [aiContext, setAiContext] = useState('');
   const [aiResult, setAiResult] = useState('');
+  // Fix: Correct typo in setter name from setIsisLoading to setIsLoading
   const [isLoading, setIsLoading] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
   const [copied, setCopied] = useState(false);
 
   const isPhoto = item.category === Category.PROFESSIONAL_PHOTO;
+  const isResume = item.category === Category.RESUME;
+
+  // If in edit mode, render the editor instead
+  if (isEditing) {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-0 md:p-4 bg-indigo-900/30 backdrop-blur-sm">
+        <div className="bg-white w-full h-full md:rounded-2xl md:h-[90vh] md:w-[95vw] max-w-7xl overflow-hidden shadow-2xl relative">
+          <TemplateEditor 
+            item={item} 
+            onClose={() => setIsEditing(false)} 
+          />
+        </div>
+      </div>
+    );
+  }
 
   const handleGenerate = async () => {
     if (!aiContext.trim()) return;
+    
     setIsLoading(true);
-    const result = await generateTemplateContent(item.category, aiContext);
-    setAiResult(result);
-    setIsLoading(false);
+    setAiResult(''); // Clear previous result
+    
+    try {
+      const result = await generateTemplateContent(item.category, aiContext);
+      setAiResult(result);
+    } catch (e) {
+      setAiResult("An unexpected error occurred. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleDownload = async () => {
+    setIsDownloading(true);
+    try {
+      // Fetch the image as a blob to force download
+      const response = await fetch(item.imageUrl);
+      if (!response.ok) throw new Error('Download failed');
+      
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      
+      // Create a sanitized filename
+      const filename = `${item.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.jpg`;
+      link.download = filename;
+      
+      document.body.appendChild(link);
+      link.click();
+      
+      // Cleanup
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Download failed:", error);
+      // Fallback behavior: open in new tab
+      window.open(item.imageUrl, '_blank');
+    } finally {
+      setIsDownloading(false);
+    }
   };
 
   const copyToClipboard = () => {
@@ -78,6 +136,66 @@ export const TemplateModal: React.FC<TemplateModalProps> = ({ item, onClose }) =
             {item.description}
           </p>
 
+          {/* Resume Structure Preview */}
+          {isResume && (
+            <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 mb-6 shadow-sm ring-1 ring-slate-100">
+                <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-2">
+                   Template Structure
+                </h3>
+                <div className="font-serif text-slate-800 bg-white p-4 rounded-lg border border-slate-100 shadow-sm">
+                    <div className="border-b border-slate-100 pb-3 mb-3">
+                        <div className="text-lg font-bold text-slate-900 tracking-tight">YOUR NAME</div>
+                        <div className="flex flex-wrap gap-x-3 gap-y-1 text-[10px] text-slate-500 mt-1.5 items-center font-sans">
+                            <span className="flex items-center gap-1"><MapPin size={10} /> City, Country</span>
+                            <span className="flex items-center gap-1"><Mail size={10} /> email@example.com</span>
+                            <span className="flex items-center gap-1"><Phone size={10} /> (555) 123-4567</span>
+                            <span className="flex items-center gap-1"><Linkedin size={10} /> linkedin.com/in/you</span>
+                        </div>
+                    </div>
+                    
+                    <div className="grid gap-3 font-sans">
+                        <div>
+                            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Summary</div>
+                            <p className="text-[10px] text-slate-600 leading-relaxed">
+                                Short 2–3 line professional summary highlighting your role and strengths.
+                            </p>
+                        </div>
+
+                        <div>
+                            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Skills</div>
+                            <p className="text-[10px] text-slate-600 font-medium">
+                                • Skill 1 • Skill 2 • Skill 3 • Skill 4
+                            </p>
+                        </div>
+
+                        <div>
+                            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Experience</div>
+                            <div className="space-y-2">
+                                <div>
+                                    <div className="flex justify-between items-baseline">
+                                        <span className="text-[11px] font-bold text-slate-800">Job Title – Company</span>
+                                        <span className="text-[9px] text-slate-400">Month Year – Month Year</span>
+                                    </div>
+                                    <ul className="text-[10px] text-slate-600 list-disc list-outside ml-3 mt-0.5 space-y-0.5">
+                                        <li>Achievement/result-focused bullet</li>
+                                        <li>Action + metric (e.g., Increased sales by 25%)</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Education</div>
+                            <div className="flex justify-between items-baseline">
+                                <span className="text-[11px] font-bold text-slate-800">Degree – Institution</span>
+                                <span className="text-[9px] text-slate-400">Year</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+          )}
+
           <div className="flex flex-wrap gap-2 mb-8">
             {item.tags.map(tag => (
               <span key={tag} className="px-3 py-1 bg-violet-50 text-violet-700 border border-violet-100 text-xs font-semibold rounded-full">
@@ -86,16 +204,39 @@ export const TemplateModal: React.FC<TemplateModalProps> = ({ item, onClose }) =
             ))}
           </div>
 
-          {/* Action Buttons */}
-          <button className="flex items-center justify-center gap-2 w-full bg-slate-900 text-white py-3.5 rounded-xl hover:bg-slate-800 transition-all shadow-lg hover:shadow-xl mb-6 font-bold hover:scale-[1.02] active:scale-95">
-            <Download className="w-4 h-4" />
-            Download {isPhoto ? 'High Res Photo' : 'Template'}
-          </button>
+          {/* Action Buttons Row */}
+          <div className="flex gap-3 mb-6">
+            <button 
+                onClick={() => setIsEditing(true)}
+                className="flex-1 flex items-center justify-center gap-2 bg-white border border-slate-200 text-slate-700 py-3.5 rounded-xl hover:bg-slate-50 hover:border-violet-200 hover:text-violet-600 transition-all shadow-sm font-bold group"
+            >
+                <Edit3 className="w-4 h-4 group-hover:scale-110 transition-transform" />
+                Customize
+            </button>
+            
+            <button 
+                onClick={handleDownload}
+                disabled={isDownloading}
+                className="flex-[2] flex items-center justify-center gap-2 bg-slate-900 text-white py-3.5 rounded-xl hover:bg-slate-800 transition-all shadow-lg hover:shadow-xl font-bold hover:scale-[1.02] active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed"
+            >
+                {isDownloading ? (
+                <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Downloading...
+                </>
+                ) : (
+                <>
+                    <Download className="w-4 h-4" />
+                    Download
+                </>
+                )}
+            </button>
+          </div>
 
           {/* AI Section */}
           <div className="border-t border-slate-100 pt-6 mt-auto">
             <div className="flex items-center gap-2 mb-3">
-              <div className="p-1.5 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-lg text-white">
+              <div className={`p-1.5 rounded-lg text-white ${isPhoto ? 'bg-gradient-to-br from-indigo-500 to-purple-500' : 'bg-gradient-to-br from-fuchsia-500 to-pink-500'}`}>
                   {isPhoto ? <ImageIcon className="w-4 h-4" /> : <Wand2 className="w-4 h-4" />}
               </div>
               <h3 className="font-bold text-slate-800 text-sm md:text-base">
@@ -123,18 +264,33 @@ export const TemplateModal: React.FC<TemplateModalProps> = ({ item, onClose }) =
               <button 
                 onClick={handleGenerate}
                 disabled={isLoading || !aiContext}
-                className="w-full py-2.5 bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white font-bold rounded-xl hover:shadow-lg hover:opacity-90 transition-all disabled:opacity-50 text-sm flex items-center justify-center gap-2"
+                className={`w-full py-2.5 text-white font-bold rounded-xl hover:shadow-lg hover:opacity-90 transition-all disabled:opacity-50 text-sm flex items-center justify-center gap-2 ${
+                  isPhoto 
+                    ? 'bg-gradient-to-r from-indigo-600 to-violet-600' 
+                    : 'bg-gradient-to-r from-violet-600 to-fuchsia-600'
+                }`}
               >
-                {isLoading ? 'Generating Magic...' : 'Generate Suggestion'}
+                {isLoading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Generating Magic...
+                  </>
+                ) : (
+                  <>
+                    <Wand2 className="w-4 h-4" />
+                    Generate Suggestion
+                  </>
+                )}
               </button>
             </div>
 
             {aiResult && (
-              <div className="mt-4 bg-gradient-to-br from-slate-50 to-white rounded-xl p-4 border border-slate-200 relative group shadow-inner">
+              <div className="mt-4 bg-gradient-to-br from-slate-50 to-white rounded-xl p-4 border border-slate-200 relative group shadow-inner animate-in fade-in slide-in-from-bottom-2">
                 <pre className="whitespace-pre-wrap text-sm text-slate-700 font-medium font-sans">{aiResult}</pre>
                 <button 
                   onClick={copyToClipboard}
                   className="absolute top-2 right-2 p-1.5 bg-white border border-slate-200 rounded-lg shadow-sm opacity-100 md:opacity-0 group-hover:opacity-100 transition-all hover:bg-slate-50"
+                  title="Copy to clipboard"
                 >
                   {copied ? <Check className="w-3 h-3 text-green-500" /> : <Copy className="w-3 h-3 text-slate-400" />}
                 </button>
