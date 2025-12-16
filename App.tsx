@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Search, LayoutGrid, Zap, Sparkles, User, LogOut } from 'lucide-react';
+import { Search, LayoutGrid, Zap, Sparkles, User, LogOut, Menu, X } from 'lucide-react';
 import { TEMPLATE_DATA, CATEGORIES } from './constants';
 import { Category, TemplateItem } from './types';
 import { TemplateModal } from './components/TemplateModal';
@@ -13,6 +13,7 @@ const App: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<Category>(Category.ALL);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedItem, setSelectedItem] = useState<TemplateItem | null>(null);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Filter Logic
   const filteredItems = useMemo(() => {
@@ -31,6 +32,7 @@ const App: React.FC = () => {
 
   const handleLogout = () => {
     setIsLoggedIn(false);
+    setIsMobileMenuOpen(false);
   };
 
   if (currentView === 'login') {
@@ -57,7 +59,7 @@ const App: React.FC = () => {
       </div>
 
       {/* Navigation Bar */}
-      <nav className="sticky top-0 z-30 bg-white/60 backdrop-blur-xl border-b border-white/50 shadow-sm">
+      <nav className="sticky top-0 z-30 bg-white/60 backdrop-blur-xl border-b border-white/50 shadow-sm transition-all duration-300">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center gap-2 cursor-pointer" onClick={() => setCurrentView('home')}>
@@ -67,6 +69,7 @@ const App: React.FC = () => {
               <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-violet-700 to-fuchsia-600 tracking-tight">ProCraft</span>
             </div>
             
+            {/* Desktop Nav */}
             <div className="hidden md:flex items-center gap-6">
               <a href="#" className="text-sm font-semibold text-slate-600 hover:text-violet-600 transition-colors">Templates</a>
               <a href="#" className="text-sm font-semibold text-slate-600 hover:text-violet-600 transition-colors">Pricing</a>
@@ -96,37 +99,84 @@ const App: React.FC = () => {
                 </button>
               )}
             </div>
+
+            {/* Mobile Menu Button */}
+            <div className="md:hidden">
+              <button 
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                className="p-2 text-slate-600 hover:text-violet-600 transition-colors"
+              >
+                {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+              </button>
+            </div>
           </div>
         </div>
+
+        {/* Mobile Menu Dropdown */}
+        {isMobileMenuOpen && (
+          <div className="md:hidden absolute top-16 left-0 right-0 bg-white/95 backdrop-blur-xl border-b border-white/50 shadow-xl p-4 flex flex-col gap-4 animate-in slide-in-from-top-5 z-40">
+            <a href="#" className="text-base font-semibold text-slate-600 hover:text-violet-600 p-2 rounded-lg hover:bg-slate-50 transition-colors">Templates</a>
+            <a href="#" className="text-base font-semibold text-slate-600 hover:text-violet-600 p-2 rounded-lg hover:bg-slate-50 transition-colors">Pricing</a>
+            
+            <div className="h-px bg-slate-200 my-1"></div>
+            
+            {isLoggedIn ? (
+              <div className="flex flex-col gap-3">
+                 <div className="flex items-center gap-3 p-2">
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-r from-fuchsia-500 to-violet-500 flex items-center justify-center text-white font-bold text-xs shadow-md">
+                      JD
+                    </div>
+                    <span className="text-sm font-bold text-slate-700">John Doe</span>
+                  </div>
+                  <button 
+                    onClick={handleLogout}
+                    className="flex items-center gap-2 text-slate-600 hover:text-red-600 p-2 rounded-lg hover:bg-red-50 transition-colors font-medium text-sm"
+                  >
+                    <LogOut size={18} /> Sign Out
+                  </button>
+              </div>
+            ) : (
+              <button 
+                onClick={() => {
+                  setIsMobileMenuOpen(false);
+                  setCurrentView('login');
+                }}
+                className="w-full bg-slate-900 text-white px-5 py-3 rounded-xl text-sm font-bold hover:bg-slate-800 transition-all shadow-lg text-center"
+              >
+                Sign In
+              </button>
+            )}
+          </div>
+        )}
       </nav>
 
       {/* Hero Section */}
       <header className="relative">
-        <div className="max-w-7xl mx-auto px-4 py-20 sm:px-6 lg:px-8 text-center relative z-10">
+        <div className="max-w-7xl mx-auto px-4 py-12 md:py-20 sm:px-6 lg:px-8 text-center relative z-10">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/50 backdrop-blur-md border border-white/60 shadow-sm mb-6">
             <Sparkles className="w-4 h-4 text-amber-500 fill-amber-500" />
-            <span className="text-sm font-semibold text-slate-700">New AI Image Prompts Available</span>
+            <span className="text-xs sm:text-sm font-semibold text-slate-700">New AI Image Prompts Available</span>
           </div>
 
-          <h1 className="text-5xl sm:text-7xl font-extrabold text-slate-900 mb-8 tracking-tight leading-tight">
-            Craft your future with <br/>
-            <span className="bg-clip-text text-transparent bg-gradient-to-r from-violet-600 via-fuchsia-500 to-orange-500 animate-gradient-x">
+          <h1 className="text-4xl sm:text-5xl md:text-7xl font-extrabold text-slate-900 mb-6 md:mb-8 tracking-tight leading-[1.15] md:leading-tight">
+            Craft your future with <br className="hidden md:block"/>
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-violet-600 via-fuchsia-500 to-orange-500 animate-gradient-x block md:inline mt-2 md:mt-0">
               vibrant designs.
             </span>
           </h1>
-          <p className="text-xl text-slate-600 max-w-2xl mx-auto mb-12 font-medium">
+          <p className="text-lg sm:text-xl text-slate-600 max-w-2xl mx-auto mb-8 md:mb-12 font-medium px-2">
             Premium templates for resumes, business cards, and social media. 
             Powered by colorful creativity and smart AI assistance.
           </p>
           
           {/* Search Bar */}
-          <div className="max-w-xl mx-auto relative group">
-            <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
+          <div className="max-w-xl mx-auto relative group px-2">
+            <div className="absolute inset-y-0 left-2 md:left-0 pl-5 flex items-center pointer-events-none">
               <Search className="h-5 w-5 text-indigo-400 group-focus-within:text-fuchsia-500 transition-colors" />
             </div>
             <input
               type="text"
-              className="block w-full pl-12 pr-4 py-4 bg-white/80 backdrop-blur-xl border-2 border-white/50 rounded-2xl text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-violet-200 focus:border-violet-300 transition-all shadow-xl shadow-indigo-100/50 hover:shadow-2xl hover:shadow-indigo-100/60"
+              className="block w-full pl-12 pr-4 py-4 bg-white/80 backdrop-blur-xl border-2 border-white/50 rounded-2xl text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-violet-200 focus:border-violet-300 transition-all shadow-xl shadow-indigo-100/50 hover:shadow-2xl hover:shadow-indigo-100/60 text-sm sm:text-base"
               placeholder="Search templates (e.g. 'Modern Resume', 'Instagram')"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -136,16 +186,16 @@ const App: React.FC = () => {
       </header>
 
       {/* Main Content */}
-      <main className="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 w-full">
+      <main className="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 w-full">
         
         {/* Category Tabs */}
-        <div className="flex overflow-x-auto gap-3 pb-8 no-scrollbar mb-4 justify-start md:justify-center">
+        <div className="flex overflow-x-auto gap-3 pb-8 no-scrollbar mb-4 justify-start md:justify-center px-1">
           {CATEGORIES.map(category => (
             <button
               key={category}
               onClick={() => setSelectedCategory(category)}
               className={`
-                whitespace-nowrap px-6 py-2.5 rounded-full text-sm font-bold transition-all duration-300
+                whitespace-nowrap px-4 md:px-6 py-2 md:py-2.5 rounded-full text-xs md:text-sm font-bold transition-all duration-300
                 ${selectedCategory === category 
                   ? 'bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white shadow-lg shadow-fuchsia-500/30 scale-105' 
                   : 'bg-white/60 text-slate-600 hover:bg-white hover:text-violet-600 shadow-sm border border-transparent hover:border-violet-100'}
@@ -158,17 +208,17 @@ const App: React.FC = () => {
 
         {/* Results Info */}
         <div className="flex justify-between items-center mb-6 px-2">
-          <h2 className="text-2xl font-bold text-slate-800">
+          <h2 className="text-xl md:text-2xl font-bold text-slate-800">
             {selectedCategory === Category.ALL ? 'All Templates' : selectedCategory}
           </h2>
-          <span className="text-sm font-medium px-3 py-1 bg-white/50 rounded-full text-slate-500 border border-white/50 shadow-sm">
+          <span className="text-xs md:text-sm font-medium px-3 py-1 bg-white/50 rounded-full text-slate-500 border border-white/50 shadow-sm">
             {filteredItems.length} results
           </span>
         </div>
 
         {/* Grid */}
         {filteredItems.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8">
             {filteredItems.map(item => (
               <div 
                 key={item.id} 
@@ -182,8 +232,8 @@ const App: React.FC = () => {
                     alt={item.title} 
                     className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700"
                   />
-                  {/* Hover Overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-violet-900/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4">
+                  {/* Hover Overlay - Hidden on touch devices typically, but good for desktop */}
+                  <div className="hidden sm:flex absolute inset-0 bg-gradient-to-t from-violet-900/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex-col justify-end p-4">
                     <span className="bg-white/20 backdrop-blur-md border border-white/30 text-white text-center py-2 rounded-lg text-sm font-bold transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
                       View Details
                     </span>
@@ -242,9 +292,9 @@ const App: React.FC = () => {
 
       {/* Footer */}
       <footer className="bg-white/40 backdrop-blur-md border-t border-white/40 mt-auto">
-        <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-4">
+        <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-4 text-center md:text-left">
           <p className="text-slate-600 text-sm font-medium">© 2024 ProCraft. All rights reserved.</p>
-          <div className="flex gap-6">
+          <div className="flex justify-center gap-6">
             <a href="#" className="text-slate-500 hover:text-violet-600 transition-colors text-sm font-semibold">Privacy</a>
             <a href="#" className="text-slate-500 hover:text-violet-600 transition-colors text-sm font-semibold">Terms</a>
             <a href="#" className="text-slate-500 hover:text-violet-600 transition-colors text-sm font-semibold">Support</a>

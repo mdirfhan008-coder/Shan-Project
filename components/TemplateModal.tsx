@@ -37,35 +37,44 @@ export const TemplateModal: React.FC<TemplateModalProps> = ({ item, onClose }) =
         onClick={(e) => e.stopPropagation()}
       >
         {/* Image Section */}
-        <div className="md:w-1/2 bg-slate-50 flex items-center justify-center p-8 relative overflow-hidden group">
+        <div className="w-full md:w-1/2 h-64 md:h-auto bg-slate-50 flex items-center justify-center p-4 md:p-8 relative overflow-hidden group flex-shrink-0">
            {/* Decorative background circle */}
            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-gradient-to-tr from-violet-100 to-fuchsia-100 rounded-full opacity-50 blur-2xl"></div>
            
            <img 
              src={item.imageUrl} 
              alt={item.title} 
-             className="relative z-10 max-h-[60vh] object-contain shadow-2xl rounded-lg transform group-hover:scale-105 transition-transform duration-500"
+             className="relative z-10 w-full h-full object-contain md:max-h-[60vh] shadow-lg rounded-lg transform md:group-hover:scale-105 transition-transform duration-500"
            />
            <div className="absolute top-4 left-4 z-20 bg-white/90 backdrop-blur border border-white/50 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider text-slate-500 shadow-sm">
              {item.dimensions}
            </div>
+           
+           {/* Mobile Close Button - visible on top of image */}
+           <button 
+             onClick={onClose} 
+             className="md:hidden absolute top-4 right-4 p-2 bg-white/80 backdrop-blur rounded-full text-slate-500 shadow-md z-30"
+           >
+              <X className="w-5 h-5" />
+           </button>
         </div>
 
         {/* Details Section */}
-        <div className="md:w-1/2 flex flex-col p-6 md:p-8 overflow-y-auto bg-white/50">
+        <div className="w-full md:w-1/2 flex flex-col p-6 md:p-8 overflow-y-auto bg-white/50">
           <div className="flex justify-between items-start mb-4">
             <div>
-              <h2 className="text-2xl font-extrabold text-slate-800 mb-1">{item.title}</h2>
+              <h2 className="text-xl md:text-2xl font-extrabold text-slate-800 mb-1">{item.title}</h2>
               <p className="text-sm font-bold text-transparent bg-clip-text bg-gradient-to-r from-violet-600 to-fuchsia-500">
                 {item.category}
               </p>
             </div>
-            <button onClick={onClose} className="p-2 hover:bg-slate-100 rounded-full transition-colors text-slate-400 hover:text-slate-600">
+            {/* Desktop Close Button */}
+            <button onClick={onClose} className="hidden md:block p-2 hover:bg-slate-100 rounded-full transition-colors text-slate-400 hover:text-slate-600">
               <X className="w-6 h-6" />
             </button>
           </div>
 
-          <p className="text-slate-600 mb-6 leading-relaxed font-medium">
+          <p className="text-slate-600 mb-6 leading-relaxed font-medium text-sm md:text-base">
             {item.description}
           </p>
 
@@ -78,7 +87,7 @@ export const TemplateModal: React.FC<TemplateModalProps> = ({ item, onClose }) =
           </div>
 
           {/* Action Buttons */}
-          <button className="flex items-center justify-center gap-2 w-full bg-slate-900 text-white py-3.5 rounded-xl hover:bg-slate-800 transition-all shadow-lg hover:shadow-xl mb-6 font-bold hover:scale-[1.02]">
+          <button className="flex items-center justify-center gap-2 w-full bg-slate-900 text-white py-3.5 rounded-xl hover:bg-slate-800 transition-all shadow-lg hover:shadow-xl mb-6 font-bold hover:scale-[1.02] active:scale-95">
             <Download className="w-4 h-4" />
             Download {isPhoto ? 'High Res Photo' : 'Template'}
           </button>
@@ -89,7 +98,7 @@ export const TemplateModal: React.FC<TemplateModalProps> = ({ item, onClose }) =
               <div className="p-1.5 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-lg text-white">
                   {isPhoto ? <ImageIcon className="w-4 h-4" /> : <Wand2 className="w-4 h-4" />}
               </div>
-              <h3 className="font-bold text-slate-800">
+              <h3 className="font-bold text-slate-800 text-sm md:text-base">
                 {isPhoto ? 'AI Image Prompt Generator' : 'AI Content Assistant'}
               </h3>
             </div>
@@ -125,7 +134,7 @@ export const TemplateModal: React.FC<TemplateModalProps> = ({ item, onClose }) =
                 <pre className="whitespace-pre-wrap text-sm text-slate-700 font-medium font-sans">{aiResult}</pre>
                 <button 
                   onClick={copyToClipboard}
-                  className="absolute top-2 right-2 p-1.5 bg-white border border-slate-200 rounded-lg shadow-sm opacity-0 group-hover:opacity-100 transition-all hover:bg-slate-50"
+                  className="absolute top-2 right-2 p-1.5 bg-white border border-slate-200 rounded-lg shadow-sm opacity-100 md:opacity-0 group-hover:opacity-100 transition-all hover:bg-slate-50"
                 >
                   {copied ? <Check className="w-3 h-3 text-green-500" /> : <Copy className="w-3 h-3 text-slate-400" />}
                 </button>

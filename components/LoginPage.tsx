@@ -21,7 +21,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onBack }) => {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
-      <div className="w-full max-w-md bg-white/60 backdrop-blur-xl rounded-3xl shadow-2xl shadow-indigo-500/10 border border-white/80 p-8 relative overflow-hidden">
+      <div className="w-full max-w-lg bg-white/60 backdrop-blur-xl rounded-3xl shadow-2xl shadow-indigo-500/10 border border-white/80 p-6 sm:p-8 relative overflow-hidden">
         
         {/* Decorative elements inside card */}
         <div className="absolute -top-20 -right-20 w-40 h-40 bg-fuchsia-400 rounded-full blur-3xl opacity-20"></div>
@@ -29,19 +29,19 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onBack }) => {
 
         <button 
           onClick={onBack}
-          className="absolute top-6 left-6 text-slate-400 hover:text-slate-600 transition-colors"
+          className="absolute top-4 left-4 sm:top-6 sm:left-6 text-slate-400 hover:text-slate-600 transition-colors"
         >
           <ArrowLeft size={20} />
         </button>
 
-        <div className="text-center mb-8 mt-4">
-          <div className="w-12 h-12 bg-gradient-to-tr from-violet-600 to-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-indigo-500/30 mx-auto mb-4">
+        <div className="text-center mb-6 sm:mb-8 mt-4 sm:mt-4">
+          <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-tr from-violet-600 to-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-indigo-500/30 mx-auto mb-4">
             <LayoutGrid size={24} />
           </div>
-          <h2 className="text-3xl font-extrabold text-slate-800 tracking-tight mb-2">
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-800 tracking-tight mb-2">
             {isSignUp ? 'Create Account' : 'Welcome Back'}
           </h2>
-          <p className="text-slate-500 font-medium">
+          <p className="text-slate-500 font-medium text-sm sm:text-base">
             {isSignUp ? 'Join ProCraft to start designing.' : 'Sign in to access your templates.'}
           </p>
         </div>
@@ -54,7 +54,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onBack }) => {
               </div>
               <input
                 type="text"
-                className="block w-full pl-11 pr-4 py-3 bg-white/70 border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 transition-all"
+                className="block w-full pl-11 pr-4 py-3 bg-white/70 border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 transition-all text-sm sm:text-base"
                 placeholder="Full Name"
                 required
               />
@@ -69,7 +69,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onBack }) => {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="block w-full pl-11 pr-4 py-3 bg-white/70 border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 transition-all"
+              className="block w-full pl-11 pr-4 py-3 bg-white/70 border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 transition-all text-sm sm:text-base"
               placeholder="Email Address"
               required
             />
@@ -83,7 +83,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onBack }) => {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="block w-full pl-11 pr-4 py-3 bg-white/70 border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 transition-all"
+              className="block w-full pl-11 pr-4 py-3 bg-white/70 border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 transition-all text-sm sm:text-base"
               placeholder="Password"
               required
             />
@@ -91,13 +91,13 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onBack }) => {
 
           {!isSignUp && (
             <div className="flex justify-end">
-              <a href="#" className="text-sm font-semibold text-violet-600 hover:text-violet-700">Forgot Password?</a>
+              <a href="#" className="text-xs sm:text-sm font-semibold text-violet-600 hover:text-violet-700">Forgot Password?</a>
             </div>
           )}
 
           <button
             type="submit"
-            className="w-full py-3.5 bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white font-bold rounded-xl shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all flex items-center justify-center gap-2 mt-2"
+            className="w-full py-3.5 bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white font-bold rounded-xl shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all flex items-center justify-center gap-2 mt-2 text-sm sm:text-base"
           >
             {isSignUp ? 'Sign Up' : 'Sign In'}
           </button>
